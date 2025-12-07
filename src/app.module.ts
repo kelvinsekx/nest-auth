@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { SupabaseModule } from './supabase/supabase.module';
+
 import { AuthService } from './auth/auth.service';
 
 @Module({
@@ -15,6 +19,11 @@ import { AuthService } from './auth/auth.service';
           limit: 10,
         },
       ],
+    }),
+    SupabaseModule,
+    ConfigModule.forRoot({
+      isGlobal: true, // makes ConfigService available everywhere
+      envFilePath: '.env',
     }),
   ],
   controllers: [AppController, AuthController],
