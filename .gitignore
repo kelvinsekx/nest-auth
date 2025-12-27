@@ -43,9 +43,10 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
-# temp directory
+# temp, dbs directory
 .temp
 .tmp
+*.db
 
 # Runtime data
 pids
