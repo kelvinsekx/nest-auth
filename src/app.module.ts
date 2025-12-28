@@ -10,6 +10,8 @@ import { SupabaseModule } from './supabase/supabase.module';
 
 import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
+import { SupabaseUsersRepository } from './@repository/supabase-users';
+import { USERS_REPOSITORY } from './@repository/users';
 
 @Module({
   imports: [
@@ -41,6 +43,10 @@ import { JwtModule } from '@nestjs/jwt';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: USERS_REPOSITORY,
+      useClass: SupabaseUsersRepository,
     },
     AuthService,
   ],
