@@ -1,10 +1,8 @@
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { UsersRepository } from './users';
-import {
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
+@Injectable()
 export class SupabaseUsersRepository implements UsersRepository {
   constructor(private readonly supabaseService: SupabaseService) {}
 
@@ -12,11 +10,12 @@ export class SupabaseUsersRepository implements UsersRepository {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('users')
-      .select('email, password, userId')
+      .select('email, password, id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (error) {
+      console.log(error);
       throw new InternalServerErrorException('Database error.');
     }
 
@@ -32,7 +31,7 @@ export class SupabaseUsersRepository implements UsersRepository {
     if (error) {
       console.error('Supabase insertion error:', error);
       throw new InternalServerErrorException(
-        'Failed to create user in the database.',
+        'Failed to create user in the database',
       );
     }
   }

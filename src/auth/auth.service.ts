@@ -30,7 +30,7 @@ export class AuthService {
   async create(body: CreateUserDto) {
     const data = await this.userRepository.findByEmail(body.email);
 
-    if (!data) {
+    if (data) {
       throw new ConflictException('User with this email already exists.');
     }
 
@@ -46,7 +46,7 @@ export class AuthService {
     };
   }
 
-  async login(body: Pick<CreateUserDto, 'email' | 'password'>) {
+  async login(body: CreateUserDto) {
     const { email, password } = body;
     const data = await this.userRepository.findByEmail(email);
 
@@ -59,7 +59,7 @@ export class AuthService {
       throw new InternalServerErrorException('Invalid credentials');
     }
 
-    const payload = { sub: data.userId, user: data.email };
+    const payload = { sub: data.id, user: data.email };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
