@@ -8,7 +8,10 @@ import {
 import bcrypt from 'bcrypt';
 import { CreateUserDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
-import { USERS_REPOSITORY, type UsersRepository } from 'src/@repository/users';
+import {
+  USERS_REPOSITORY,
+  type UsersRepository,
+} from 'src/@repository/users/users.interface';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +31,7 @@ export class AuthService {
   }
 
   async create(body: CreateUserDto) {
-    const data = await this.userRepository.findByEmail(body.email);
+    const data = await this.userRepository.findByEmail({ email: body.email });
 
     if (data) {
       throw new ConflictException('User with this email already exists.');
@@ -48,7 +51,7 @@ export class AuthService {
 
   async login(body: CreateUserDto) {
     const { email, password } = body;
-    const data = await this.userRepository.findByEmail(email);
+    const data = await this.userRepository.findByEmail({ email });
 
     if (!data) throw new UnauthorizedException('Invalid credentials');
 

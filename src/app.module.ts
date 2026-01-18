@@ -11,10 +11,11 @@ import { SupabaseModule } from './supabase/supabase.module';
 
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
-import { PrismaUsersRepository } from './@repository/prisma-users';
-import { USERS_REPOSITORY } from './@repository/users';
 
 import { MovieModule } from './movie/movie.module';
+import { USERS_REPOSITORY } from './@repository/users/users.interface';
+import { UsersService } from './@repository/users/prisma-users';
+import { PrismaService } from './@repository/prisma.service';
 
 @Module({
   imports: [
@@ -44,13 +45,14 @@ import { MovieModule } from './movie/movie.module';
   controllers: [AppController, AuthController],
   providers: [
     AppService,
+    PrismaService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
     {
       provide: USERS_REPOSITORY,
-      useClass: PrismaUsersRepository,
+      useClass: UsersService,
     },
     AuthService,
   ],

@@ -1,12 +1,12 @@
 import { SupabaseService } from 'src/supabase/supabase.service';
-import { UsersRepository } from './users';
+import { UsersRepository } from './users.interface';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class SupabaseUsersRepository implements UsersRepository {
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async findByEmail(email: string) {
+  async findByEmail({ email }) {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('users')
@@ -34,5 +34,7 @@ export class SupabaseUsersRepository implements UsersRepository {
         'Failed to create user in the database',
       );
     }
+
+    return { email: data.email };
   }
 }
