@@ -9,4 +9,14 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('/send-email')
+  sendMailer() {
+    const mail = this.appService.sendMail();
+
+    return {
+      message: 'success',
+      mail,
+    };
+  }
 }
