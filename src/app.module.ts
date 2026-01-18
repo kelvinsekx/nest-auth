@@ -2,16 +2,19 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { JwtModule } from '@nestjs/jwt';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
+
 import { SupabaseModule } from './supabase/supabase.module';
 
 import { AuthService } from './auth/auth.service';
-import { JwtModule } from '@nestjs/jwt';
-import { SupabaseUsersRepository } from './@repository/supabase-users';
+import { AuthController } from './auth/auth.controller';
+import { PrismaUsersRepository } from './@repository/prisma-users';
 import { USERS_REPOSITORY } from './@repository/users';
+
+import { MovieModule } from './movie/movie.module';
 
 @Module({
   imports: [
@@ -36,6 +39,7 @@ import { USERS_REPOSITORY } from './@repository/users';
       isGlobal: true, // makes ConfigService available everywhere
       envFilePath: '.env',
     }),
+    MovieModule,
   ],
   controllers: [AppController, AuthController],
   providers: [
@@ -46,7 +50,7 @@ import { USERS_REPOSITORY } from './@repository/users';
     },
     {
       provide: USERS_REPOSITORY,
-      useClass: SupabaseUsersRepository,
+      useClass: PrismaUsersRepository,
     },
     AuthService,
   ],
