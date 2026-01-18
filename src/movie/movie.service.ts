@@ -3,7 +3,7 @@ import type { InputMovie } from './movie.interface';
 import {
   MOVIES_REPOSITORY,
   type MoviesRepository,
-} from 'src/@repository/movies.repository';
+} from 'src/@repository/movies/movies.interface';
 
 @Injectable()
 export class MovieService {
