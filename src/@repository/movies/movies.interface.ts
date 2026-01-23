@@ -1,11 +1,20 @@
-import type { InputMovie, Movie } from 'src/movie/movie.interface';
+import { Prisma } from 'src/generated/prisma/client';
 
 export const MOVIES_REPOSITORY = 'MOVIES_REPOSITORY';
 
 export interface MoviesRepository {
-  getAllMovies(): Promise<Array<Movie>>;
-  getOneMovie(id: number): Promise<Movie | null>;
-  createNewMovie(data: InputMovie): Promise<Movie | never>;
-  updateMovie(id: number, data: Movie): Promise<Movie | never>;
-  removeMovie(id: number): Promise<Movie | never>;
+  getAllMovies(): Promise<Array<Prisma.MovieCreateInput>>;
+
+  getOneMovie(id: string): Promise<Prisma.MovieCreateInput | null>;
+
+  createNewMovie(
+    data: Prisma.MovieCreateInput,
+  ): Promise<Prisma.MovieCreateInput | never>;
+
+  updateMovie(
+    id: string,
+    data: Prisma.MovieCreateInput,
+  ): Promise<Prisma.MovieCreateInput | never>;
+
+  removeMovie(id: string): Promise<Prisma.MovieCreateInput | never>;
 }

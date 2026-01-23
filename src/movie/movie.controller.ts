@@ -25,7 +25,7 @@ export class MovieController {
 
   @Get(':id')
   getOneMovie(@Param('id') id: string) {
-    return this.movieService.getOneMovie(parseInt(id, 10));
+    return this.movieService.getOneMovie(id);
   }
 
   @Post()

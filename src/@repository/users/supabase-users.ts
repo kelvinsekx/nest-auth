@@ -10,7 +10,7 @@ export class SupabaseUsersRepository implements UsersRepository {
     const { data, error } = await this.supabaseService
       .getClient()
       .from('users')
-      .select('email, password, id')
+      .select('email, passwordHash, id')
       .eq('email', email)
       .maybeSingle();
 
@@ -22,7 +22,7 @@ export class SupabaseUsersRepository implements UsersRepository {
     return data || null;
   }
 
-  async create(data: { email: string; password: string }) {
+  async create(data: { email: string; passwordHash: string }) {
     const { error } = await this.supabaseService
       .getClient()
       .from('users')

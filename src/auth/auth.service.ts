@@ -6,42 +6,76 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
-import { CreateUserDto } from './auth.dto';
+import { CreateUserDto, VerifyeUserDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import {
-  USERS_REPOSITORY,
-  type UsersRepository,
-} from 'src/@repository/users/users.interface';
+  EmailAlreadyExistsError,
+  EmailDoNotExistOnVerify,
+  TokensMismatchError,
+} from './../errors/auth-exceptions';
+import { UsersService } from 'src/@repository/users/prisma-users';
+import { PendingUserService } from './other-services/pending-user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(USERS_REPOSITORY)
-    private userRepository: UsersRepository,
+    private userRepository: UsersService,
+    private pendingUserRepository: PendingUserService,
     private jwtService: JwtService,
   ) {}
 
   async hash(plainText): Promise<string> {
-    const saltRounds = 14;
+    const saltRounds = 10;
     return await bcrypt.hash(plainText, saltRounds);
   }
 
-  async unhash(password, hash): Promise<boolean> {
-    return await bcrypt.compare(hash, password);
+  async unhash(plainText, hash): Promise<boolean> {
+    return await bcrypt.compare(plainText, hash);
   }
 
   async create(body: CreateUserDto) {
-    const data = await this.userRepository.findByEmail({ email: body.email });
+    const existingUser = await this.userRepository.findByEmail({
+      email: body.email,
+    });
 
-    if (data) {
-      throw new ConflictException('User with this email already exists.');
+    if (existingUser) {
+      throw new EmailAlreadyExistsError();
     }
 
-    const hashedPassword = await this.hash(body.password);
-    await this.userRepository.create({
+    const passwordHash = await this.hash(body.password);
+
+    await this.pendingUserRepository.createPendingUser(
+      body.email,
+      passwordHash,
+    );
+
+    return {
+      message: 'Successful. Proceed to verify email',
+    };
+  }
+
+  async verify(body: VerifyeUserDto) {
+    const existingUser = await this.userRepository.findByEmail({
       email: body.email,
-      password: hashedPassword,
     });
+
+    if (existingUser) {
+      throw new EmailAlreadyExistsError();
+    }
+
+    const data = await this.pendingUserRepository.findPendingUser(body.email);
+
+    if (!data) throw new EmailDoNotExistOnVerify();
+
+    if (data.token !== body.token) throw new TokensMismatchError();
+
+    await this.userRepository.create({
+      email: data.email,
+      passwordHash: data.passwordHash,
+      emailVerified: true,
+    });
+
+    await this.pendingUserRepository.delete(body.email);
 
     return {
       message: 'User created successfully',
@@ -55,7 +89,7 @@ export class AuthService {
 
     if (!data) throw new UnauthorizedException('Invalid credentials');
 
-    const isMatch = this.unhash(password, data.password);
+    const isMatch = await this.unhash(password, data.passwordHash);
 
     if (!isMatch) {
       console.error("password don't match");

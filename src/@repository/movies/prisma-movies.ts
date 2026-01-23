@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { MoviesRepository } from './movies.interface';
-import { InputMovie, Movie } from 'src/movie/movie.interface';
+
 import { PrismaService } from '../prisma.service';
+import { Prisma } from 'src/generated/prisma/client';
 /**
  *
  */
@@ -11,21 +12,21 @@ export class PrismaMoviesRepository implements MoviesRepository {
   async getAllMovies() {
     return await this.prisma.movie.findMany();
   }
-  async getOneMovie(id: number) {
+  async getOneMovie(id: string) {
     return await this.prisma.movie.findUnique({
       where: { id },
     });
   }
-  async createNewMovie(data: InputMovie) {
+  async createNewMovie(data: Prisma.MovieCreateInput) {
     return this.prisma.movie.create({ data });
   }
-  async updateMovie(id: number, data: Movie) {
+  async updateMovie(id: string, data: Prisma.MovieCreateInput) {
     return this.prisma.movie.update({
       where: { id },
       data,
     });
   }
-  async removeMovie(id: number) {
+  async removeMovie(id: string) {
     return this.prisma.movie.delete({
       where: { id },
     });

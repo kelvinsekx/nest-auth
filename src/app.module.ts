@@ -14,9 +14,15 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { MovieModule } from './movie/movie.module';
-import { USERS_REPOSITORY } from './@repository/users/users.interface';
+import {
+  USERS_REPOSITORY,
+  UsersRepository,
+} from './@repository/users/users.interface';
 import { UsersService } from './@repository/users/prisma-users';
 import { PrismaService } from './@repository/prisma.service';
+import { PendingUserService } from './auth/other-services/pending-user.service';
+import { VerificationService } from './auth/verification-service/verification.service';
+import { VerificatonPolicyService } from './auth/verification-service/verification-policy.service';
 
 @Module({
   imports: [
@@ -38,7 +44,7 @@ import { PrismaService } from './@repository/prisma.service';
     }),
     SupabaseModule,
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true,
       envFilePath: '.env',
     }),
     MailerModule.forRoot({
@@ -56,15 +62,17 @@ import { PrismaService } from './@repository/prisma.service';
   providers: [
     AppService,
     PrismaService,
+    UsersService,
+    PendingUserService,
+    VerificationService,
+    VerificatonPolicyService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-    {
-      provide: USERS_REPOSITORY,
-      useClass: UsersService,
-    },
+
     AuthService,
   ],
+  exports: [UsersService],
 })
 export class AppModule {}

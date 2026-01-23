@@ -21,7 +21,7 @@ export class CreateMovieDto {
   @Transform(Trim)
   @IsNumber()
   @IsNotEmpty()
-  year: number;
+  releaseYear: number;
 }
 
 export class UpdateMovieDTO {
@@ -32,8 +32,8 @@ export class UpdateMovieDTO {
   title: string;
 
   @Transform(Trim)
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   @IsOptional()
-  year: number;
+  releaseYear: number;
 }

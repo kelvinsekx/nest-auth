@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { InputMovie } from './movie.interface';
 import {
   MOVIES_REPOSITORY,
   type MoviesRepository,
 } from 'src/@repository/movies/movies.interface';
+import { Prisma } from 'src/generated/prisma/client';
 
 @Injectable()
 export class MovieService {
@@ -16,25 +16,25 @@ export class MovieService {
     return this.movieRepository.getAllMovies();
   }
 
-  getOneMovie(id: number) {
+  getOneMovie(id: string) {
     return this.movieRepository.getOneMovie(id);
   }
 
-  createNewMovie(movieInput: InputMovie) {
-    const { title, year } = movieInput;
+  createNewMovie(movieInput: Prisma.MovieCreateInput) {
+    const { title, releaseYear } = movieInput;
     const movie = this.movieRepository.createNewMovie({
       title,
-      year,
+      releaseYear,
     });
     return movie;
   }
 
   updateMovie(id: string, movie) {
-    const updatedMovie = this.movieRepository.updateMovie(parseInt(id), movie);
+    const updatedMovie = this.movieRepository.updateMovie(id, movie);
     return updatedMovie;
   }
 
   removeMovie(id: string) {
-    this.movieRepository.removeMovie(parseInt(id));
+    this.movieRepository.removeMovie(id);
   }
 }

@@ -23,3 +23,11 @@ export class CreateUserDto {
   })
   password: string;
 }
+
+export class VerifyeUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  token: string;
+}

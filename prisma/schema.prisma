@@ -14,17 +14,99 @@ datasource db {
   provider = "sqlite"
 }
 
-model User {
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum RentalStatus {
+  PENDING
+  ACTIVE
+  RETURNED
+  EXPIRED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PendingUser {
   id  String  @id @default(cuid())
   email   String  @unique
-  password  String
-  username String?
+  passwordHash  String
+  token String
+
   createdAt DateTime @default(now())
 }
 
-model Movie {
-  id  Int  @id @default(autoincrement())
-  title   String  
-  year  Int 
+model User {
+  id  String  @id @default(cuid())
+  email   String  @unique
+  passwordHash  String @map("password")
+  username String?
+  role Role @default(USER)
+  emailVerified Boolean @default(false)
+
+  rentals Rental[]
+  reviews Review[]
+
   createdAt DateTime @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model Rental {
+  id String @id @default(uuid())
+  status RentalStatus @default(PENDING)
+
+  rentedAt DateTime?
+  dueAt DateTime?
+  returnedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
+
+  movie Movie @relation(fields: [movieId], references: [id])
+  movieId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([userId])
+  @@index([movieId])
+}
+
+model Review {
+  id String @id @default(uuid())
+  rating Int
+  comment String
+  status ReviewStatus @default(PENDING)
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  movieId String
+  movie Movie @relation(fields: [movieId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([userId, movieId])
+}
+
+model Movie {
+  id  String  @id @default(uuid())
+  title   String
+  description String?  
+  releaseYear  Int @map("year")
+  genre String?
+  rating Float? 
+ 
+  rentals Rental[]
+  reviews Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 }

@@ -1,18 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './../prisma.service';
-import { UsersRepository } from './users.interface';
 import { Prisma, User } from 'src/generated/prisma/client';
 
 @Injectable()
-export class UsersService implements UsersRepository {
+export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findByEmail(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<Omit<User, 'username' | 'createdAt'> | null> {
+  async findByEmail(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
-      select: { id: true, email: true, password: true },
+      select: { id: true, email: true, passwordHash: true },
     });
   }
 
