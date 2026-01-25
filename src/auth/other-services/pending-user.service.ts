@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { VerificationService } from '../verification-service/verification.service';
 import { PrismaService } from 'src/@repository/prisma.service';
+import { EmailDoNotExistOnVerify } from 'src/errors/auth-exceptions';
 
 @Injectable()
 export class PendingUserService {
@@ -25,8 +26,17 @@ export class PendingUserService {
 
     const data = await this.prisma.pendingUser.findUnique({
       where: pendingUserInput,
-      select: { id: true, email: true, token: true, passwordHash: true },
+      select: {
+        id: true,
+        email: true,
+        token: true,
+        passwordHash: true,
+        createdAt: true,
+      },
     });
+
+    if (!data) throw new EmailDoNotExistOnVerify();
+
     return data;
   }
 

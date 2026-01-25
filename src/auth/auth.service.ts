@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -9,16 +8,13 @@ import { CreateUserDto, VerifyUserDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import {
   EmailAlreadyExistsError,
-  EmailDoNotExistOnReset,
-  EmailDoNotExistOnVerify,
-  ResetTokenWasUsed,
   TokensMismatchError,
 } from './../errors/auth-exceptions';
 import { UsersService } from 'src/@repository/users/prisma-users';
 import { PendingUserService } from './other-services/pending-user.service';
 import { VerifyPasswordResetRepository } from './other-services/reset-password.service';
-import { PrismaService } from 'src/@repository/prisma.service';
 import { HashService } from './other-services/hash-service';
+import { PasswordService } from './other-services/password.service';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +25,7 @@ export class AuthService {
     private pendingUserRepository: PendingUserService,
     private passwordResetRepository: VerifyPasswordResetRepository,
     private jwtService: JwtService,
-    private prisma: PrismaService,
+    private passwordService: PasswordService,
   ) {}
 
   async create(body: CreateUserDto) {
@@ -53,19 +49,6 @@ export class AuthService {
     };
   }
 
-  private async validateResetToken(token: string) {
-    const data = await this.passwordResetRepository.getResetToken(token);
-
-    if (!data) throw new EmailDoNotExistOnReset();
-    if (data.used) throw new ResetTokenWasUsed();
-
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    if (data.createdAt < fiveMinutesAgo)
-      throw new BadRequestException('Token expired');
-
-    return token;
-  }
-
   async verify(body: VerifyUserDto) {
     const existingUser = await this.userRepository.findByEmail({
       email: body.email,
@@ -77,9 +60,11 @@ export class AuthService {
 
     const data = await this.pendingUserRepository.findPendingUser(body.email);
 
-    if (!data) throw new EmailDoNotExistOnVerify();
+    // TOD: if user has been pending for 25 hours deactivate
 
     if (data.token !== body.token) throw new TokensMismatchError();
+
+    // TOD: time safe comparison for token
 
     await this.userRepository.create({
       email: data.email,
@@ -104,7 +89,6 @@ export class AuthService {
     const isMatch = await this.HashService.unhash(password, data.passwordHash);
 
     if (!isMatch) {
-      console.error("password don't match");
       throw new InternalServerErrorException('Invalid credentials');
     }
 
@@ -116,17 +100,9 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string) {
-    const existingUser = await this.userRepository.findByEmail({
-      email,
-    });
+    const token = await this.passwordResetRepository.createResetToken(email);
 
-    if (existingUser) {
-      const token = await this.passwordResetRepository.createResetToken(
-        existingUser.email,
-        existingUser.id,
-      );
-      // TODO: send token to user email
-    }
+    // TODO: send user token over an email
 
     return {
       message:
@@ -136,36 +112,19 @@ export class AuthService {
   }
 
   async confirmResetToken(token: string) {
-    const secure_token = await this.validateResetToken(token);
+    await this.passwordResetRepository.confirmTokenValidity(token);
     return {
       message: 'Successful.',
-      secure_token,
+      token,
     };
   }
 
-  async ResetPassword(email: string, passwordTxt: string, token: string) {
-    const existingUser = await this.userRepository.findByEmail({
-      email,
-    });
+  async resetPassword(email: string, passwordTxt: string, token: string) {
+    await this.passwordResetRepository.confirmTokenValidity(token);
 
-    if (!existingUser) throw new UnauthorizedException('Unauthorized user');
+    await this.passwordService.updatePassword(email, passwordTxt);
 
-    await this.validateResetToken(token);
-
-    const passwordHash = await this.HashService.hash(passwordTxt);
-    await this.prisma.user.update({
-      where: {
-        id: existingUser.id,
-      },
-      data: {
-        passwordHash,
-      },
-    });
-
-    await this.prisma.verifyPasswordReset.update({
-      where: { token },
-      data: { used: true },
-    });
+    await this.passwordResetRepository.setTokenUsed(token);
 
     return {
       message: 'Password reset successful.',

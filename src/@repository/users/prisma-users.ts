@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from './../prisma.service';
 import { Prisma, User } from 'src/generated/prisma/client';
 
@@ -7,10 +7,12 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findByEmail(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({
+    const existingUser = await this.prisma.user.findUnique({
       where: userWhereUniqueInput,
       select: { id: true, email: true, passwordHash: true },
     });
+
+    return existingUser;
   }
 
   async create(data: Prisma.UserCreateInput): Promise<Pick<User, 'email'>> {

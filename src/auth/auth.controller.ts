@@ -7,7 +7,12 @@ import {
   Get,
   Query,
 } from '@nestjs/common';
-import { CreateUserDto, PasswordReset, VerifyUserDto } from './auth.dto';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  PasswordReset,
+  VerifyUserDto,
+} from './auth.dto';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -21,7 +26,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async signIn(@Body() signInDto: CreateUserDto) {
+  async signIn(@Body() signInDto: LoginUserDto) {
     return await this.authService.login(signInDto);
   }
 
@@ -42,7 +47,7 @@ export class AuthController {
 
   @Post('reset-password')
   async ResetPassword(@Body() body: PasswordReset) {
-    return await this.authService.ResetPassword(
+    return await this.authService.resetPassword(
       body.email,
       body.password,
       body.token,

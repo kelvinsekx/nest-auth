@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { VerificationService } from '../verification-service/verification.service';
 import { PrismaService } from 'src/@repository/prisma.service';
+import {
+  EmailDoNotExistOnReset,
+  ResetTokenWasUsed,
+} from 'src/errors/auth-exceptions';
 
 @Injectable()
 export class VerifyPasswordResetRepository {
@@ -9,21 +13,27 @@ export class VerifyPasswordResetRepository {
     private readonly prisma: PrismaService,
   ) {}
 
-  async createResetToken(email: string, userId: string) {
+  async createResetToken(email: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, passwordHash: true },
+    });
+
+    if (!existingUser) return;
+
     const token = this.policy.generateCode(email, 'reset');
-    // TODO: send user token over an email
 
     await this.prisma.verifyPasswordReset.create({
       data: {
         token,
-        userId,
+        userId: existingUser.id,
       },
     });
 
     return token;
   }
 
-  async getResetToken(token: string) {
+  async confirmTokenValidity(token: string) {
     const resetResult = await this.prisma.verifyPasswordReset.findFirst({
       where: {
         token,
@@ -35,11 +45,22 @@ export class VerifyPasswordResetRepository {
       },
     });
 
-    if (!resetResult) return null;
+    if (!resetResult) throw new EmailDoNotExistOnReset();
+    if (resetResult.used) throw new ResetTokenWasUsed();
+
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    if (resetResult.createdAt < fiveMinutesAgo)
+      throw new BadRequestException('Token expired');
 
     return {
-      used: resetResult.used,
-      createdAt: resetResult.createdAt,
+      token,
     };
+  }
+
+  async setTokenUsed(token: string) {
+    await this.prisma.verifyPasswordReset.update({
+      where: { token },
+      data: { used: true },
+    });
   }
 }
