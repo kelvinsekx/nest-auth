@@ -23,7 +23,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Something went wrong!';
+    let message: String | Object = 'Something went wrong.';
 
     if (exception instanceof EmailAlreadyExistsError) {
       status = HttpStatus.CONFLICT;
@@ -40,6 +40,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof TokensMismatchError) {
       status = HttpStatus.CONFLICT;
       message = exception.message;
+    } else if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      message = exception.getResponse();
     }
 
     res.status(status).json({ statusCode: status, message });
