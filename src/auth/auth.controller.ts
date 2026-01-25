@@ -37,7 +37,7 @@ export class AuthController {
 
   @Post('confirm-reset-token')
   async ConfirmPasswordReset(@Body() body: VerifyeUserDto) {
-    return await this.authService.confirmResetToken(body.email, body.token);
+    return await this.authService.confirmResetToken(body.token);
   }
 
   @Post('reset-password')

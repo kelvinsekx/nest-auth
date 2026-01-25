@@ -24,11 +24,10 @@ export class VerifyPasswordResetRepository {
     return token;
   }
 
-  async getResetToken(userId: string, token: string) {
+  async getResetToken(token: string) {
     const resetResult = await this.prisma.verifyPasswordReset.findFirst({
       where: {
         token,
-        userId,
       },
       select: {
         used: true,

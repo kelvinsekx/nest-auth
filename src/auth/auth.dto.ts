@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
@@ -26,9 +27,11 @@ export class CreateUserDto {
 
 export class VerifyeUserDto {
   @IsEmail()
+  @IsOptional()
   email: string;
 
   @IsString()
+  @IsOptional()
   token: string;
 }
 

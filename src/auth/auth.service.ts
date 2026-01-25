@@ -61,6 +61,19 @@ export class AuthService {
     };
   }
 
+  private async validateResetToken(token: string) {
+    const data = await this.passwordResetRepository.getResetToken(token);
+
+    if (!data) throw new EmailDoNotExistOnReset();
+    if (data.used) throw new ResetTokenWasUsed();
+
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    if (data.createdAt < fiveMinutesAgo)
+      throw new BadRequestException('Token expired');
+
+    return token;
+  }
+
   async verify(body: VerifyeUserDto) {
     const existingUser = await this.userRepository.findByEmail({
       email: body.email,
@@ -130,28 +143,11 @@ export class AuthService {
     };
   }
 
-  async confirmResetToken(email: string, token: string) {
-    const existingUser = await this.userRepository.findByEmail({
-      email,
-    });
-
-    if (!existingUser) throw new UnauthorizedException('Unauthorized user');
-
-    const data = await this.passwordResetRepository.getResetToken(
-      existingUser.id,
-      token,
-    );
-
-    if (!data) throw new EmailDoNotExistOnReset();
-    if (data.used) throw new ResetTokenWasUsed();
-
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    if (data.createdAt < fiveMinutesAgo)
-      throw new BadRequestException('Token expired');
-
+  async confirmResetToken(token: string) {
+    const secure_token = await this.validateResetToken(token);
     return {
       message: 'Successful.',
-      secure_token: token,
+      secure_token,
     };
   }
 
@@ -162,17 +158,7 @@ export class AuthService {
 
     if (!existingUser) throw new UnauthorizedException('Unauthorized user');
 
-    const data = await this.passwordResetRepository.getResetToken(
-      existingUser.id,
-      token,
-    );
-
-    if (!data) throw new EmailDoNotExistOnReset();
-    if (data.used) throw new ResetTokenWasUsed();
-
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    if (data.createdAt < fiveMinutesAgo)
-      throw new BadRequestException('Token expired');
+    await this.validateResetToken(token);
 
     const passwordHash = await this.hash(passwordTxt);
     await this.prisma.user.update({
@@ -188,6 +174,7 @@ export class AuthService {
       where: { token },
       data: { used: true },
     });
+
     return {
       message: 'Password reset successful.',
     };
