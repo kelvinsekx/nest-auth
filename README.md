@@ -23,7 +23,7 @@
 - user verification ✅
 - user verification with email verification
 - secure login with JWT ✅
-- password reset
+- password reset ✅
 - password reset with email
 - role-based permissions
 
