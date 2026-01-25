@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { VerificationService } from '../verification-service/verification.service';
 import { PrismaService } from 'src/@repository/prisma.service';
-import crypto from 'node:crypto';
 
 @Injectable()
 export class VerifyPasswordResetRepository {
