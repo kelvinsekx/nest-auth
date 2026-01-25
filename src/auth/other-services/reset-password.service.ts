@@ -11,7 +11,7 @@ export class VerifyPasswordResetRepository {
   ) {}
 
   async createResetToken(email: string, userId: string) {
-    const token = crypto.randomInt(1000, 10000).toString();
+    const token = this.policy.generateCode(email, 'reset');
     // TODO: send user token over an email
 
     await this.prisma.verifyPasswordReset.create({
