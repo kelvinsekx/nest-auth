@@ -24,6 +24,7 @@ import { PendingUserService } from './auth/other-services/pending-user.service';
 import { VerificationService } from './auth/verification-service/verification.service';
 import { VerificatonPolicyService } from './auth/verification-service/verification-policy.service';
 import { VerifyPasswordResetRepository } from './auth/other-services/reset-password.service';
+import { PasswordService } from './auth/other-services/password.service';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { VerifyPasswordResetRepository } from './auth/other-services/reset-passw
     PendingUserService,
     VerificationService,
     VerificatonPolicyService,
+    PasswordService,
     VerifyPasswordResetRepository,
     {
       provide: APP_GUARD,
