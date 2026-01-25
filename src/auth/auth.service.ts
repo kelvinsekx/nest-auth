@@ -1,13 +1,11 @@
 import {
   BadRequestException,
-  ConflictException,
-  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import bcrypt from 'bcrypt';
-import { CreateUserDto, VerifyeUserDto } from './auth.dto';
+
+import { CreateUserDto, VerifyUserDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import {
   EmailAlreadyExistsError,
@@ -20,9 +18,12 @@ import { UsersService } from 'src/@repository/users/prisma-users';
 import { PendingUserService } from './other-services/pending-user.service';
 import { VerifyPasswordResetRepository } from './other-services/reset-password.service';
 import { PrismaService } from 'src/@repository/prisma.service';
+import { HashService } from './other-services/hash-service';
 
 @Injectable()
 export class AuthService {
+  HashService = new HashService();
+
   constructor(
     private userRepository: UsersService,
     private pendingUserRepository: PendingUserService,
@@ -30,15 +31,6 @@ export class AuthService {
     private jwtService: JwtService,
     private prisma: PrismaService,
   ) {}
-
-  async hash(plainText): Promise<string> {
-    const saltRounds = 10;
-    return await bcrypt.hash(plainText, saltRounds);
-  }
-
-  async unhash(plainText, hash): Promise<boolean> {
-    return await bcrypt.compare(plainText, hash);
-  }
 
   async create(body: CreateUserDto) {
     const existingUser = await this.userRepository.findByEmail({
@@ -49,7 +41,7 @@ export class AuthService {
       throw new EmailAlreadyExistsError();
     }
 
-    const passwordHash = await this.hash(body.password);
+    const passwordHash = await this.HashService.hash(body.password);
 
     await this.pendingUserRepository.createPendingUser(
       body.email,
@@ -74,7 +66,7 @@ export class AuthService {
     return token;
   }
 
-  async verify(body: VerifyeUserDto) {
+  async verify(body: VerifyUserDto) {
     const existingUser = await this.userRepository.findByEmail({
       email: body.email,
     });
@@ -109,7 +101,7 @@ export class AuthService {
 
     if (!data) throw new UnauthorizedException('Invalid credentials');
 
-    const isMatch = await this.unhash(password, data.passwordHash);
+    const isMatch = await this.HashService.unhash(password, data.passwordHash);
 
     if (!isMatch) {
       console.error("password don't match");
@@ -160,7 +152,7 @@ export class AuthService {
 
     await this.validateResetToken(token);
 
-    const passwordHash = await this.hash(passwordTxt);
+    const passwordHash = await this.HashService.hash(passwordTxt);
     await this.prisma.user.update({
       where: {
         id: existingUser.id,
