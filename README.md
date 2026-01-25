@@ -19,10 +19,10 @@
 
 ### Authentication & user management
 
-- user signup & login
-- user verification
+- user signup & login ✅
+- user verification ✅
 - user verification with email verification
-- secure login with JWT
+- secure login with JWT ✅
 - password reset
 - password reset with email
 - role-based permissions

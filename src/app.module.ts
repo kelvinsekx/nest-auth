@@ -23,6 +23,7 @@ import { PrismaService } from './@repository/prisma.service';
 import { PendingUserService } from './auth/other-services/pending-user.service';
 import { VerificationService } from './auth/verification-service/verification.service';
 import { VerificatonPolicyService } from './auth/verification-service/verification-policy.service';
+import { VerifyPasswordResetRepository } from './auth/other-services/reset-password.service';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { VerificatonPolicyService } from './auth/verification-service/verificati
     PendingUserService,
     VerificationService,
     VerificatonPolicyService,
+    VerifyPasswordResetRepository,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

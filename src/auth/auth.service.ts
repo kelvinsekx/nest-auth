@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -10,18 +11,24 @@ import { CreateUserDto, VerifyeUserDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import {
   EmailAlreadyExistsError,
+  EmailDoNotExistOnReset,
   EmailDoNotExistOnVerify,
+  ResetTokenWasUsed,
   TokensMismatchError,
 } from './../errors/auth-exceptions';
 import { UsersService } from 'src/@repository/users/prisma-users';
 import { PendingUserService } from './other-services/pending-user.service';
+import { VerifyPasswordResetRepository } from './other-services/reset-password.service';
+import { PrismaService } from 'src/@repository/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userRepository: UsersService,
     private pendingUserRepository: PendingUserService,
+    private passwordResetRepository: VerifyPasswordResetRepository,
     private jwtService: JwtService,
+    private prisma: PrismaService,
   ) {}
 
   async hash(plainText): Promise<string> {
@@ -100,6 +107,89 @@ export class AuthService {
 
     return {
       access_token: await this.jwtService.signAsync(payload),
+    };
+  }
+
+  async requestPasswordReset(email: string) {
+    const existingUser = await this.userRepository.findByEmail({
+      email,
+    });
+
+    if (existingUser) {
+      const token = await this.passwordResetRepository.createResetToken(
+        existingUser.email,
+        existingUser.id,
+      );
+      // TODO: send token to user email
+    }
+
+    return {
+      message:
+        'Successful. Sent a password reset token if this email exist with us',
+      email,
+    };
+  }
+
+  async confirmResetToken(email: string, token: string) {
+    const existingUser = await this.userRepository.findByEmail({
+      email,
+    });
+
+    if (!existingUser) throw new UnauthorizedException('Unauthorized user');
+
+    const data = await this.passwordResetRepository.getResetToken(
+      existingUser.id,
+      token,
+    );
+
+    if (!data) throw new EmailDoNotExistOnReset();
+    if (data.used) throw new ResetTokenWasUsed();
+
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    if (data.createdAt < fiveMinutesAgo)
+      throw new BadRequestException('Token expired');
+
+    return {
+      message: 'Successful.',
+      secure_token: token,
+    };
+  }
+
+  async ResetPassword(email: string, passwordTxt: string, token: string) {
+    const existingUser = await this.userRepository.findByEmail({
+      email,
+    });
+
+    if (!existingUser) throw new UnauthorizedException('Unauthorized user');
+
+    const data = await this.passwordResetRepository.getResetToken(
+      existingUser.id,
+      token,
+    );
+
+    if (!data) throw new EmailDoNotExistOnReset();
+    if (data.used) throw new ResetTokenWasUsed();
+
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    if (data.createdAt < fiveMinutesAgo)
+      throw new BadRequestException('Token expired');
+
+    const passwordHash = await this.hash(passwordTxt);
+    await this.prisma.user.update({
+      where: {
+        id: existingUser.id,
+      },
+      data: {
+        passwordHash,
+      },
+    });
+
+    await this.prisma.verifyPasswordReset.update({
+      where: { token },
+      data: { used: true },
+    });
+    return {
+      message: 'Password reset successful.',
     };
   }
 }

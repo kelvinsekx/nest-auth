@@ -52,6 +52,7 @@ model User {
 
   rentals Rental[]
   reviews Review[]
+  resetTokens VerifyPasswordReset[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -109,4 +110,14 @@ model Movie {
 
   createdAt DateTime @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model VerifyPasswordReset {
+  used Boolean @default(false)
+  token String @id @unique
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
 }

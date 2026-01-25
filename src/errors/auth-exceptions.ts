@@ -18,3 +18,17 @@ export class EmailDoNotExistOnVerify extends Error {
     this.name = 'EmailDoNotExistOnVerifyError';
   }
 }
+
+export class EmailDoNotExistOnReset extends Error {
+  constructor() {
+    super("Email don't exist");
+    this.name = 'EmailDoNotExistOnResetError';
+  }
+}
+
+export class ResetTokenWasUsed extends Error {
+  constructor() {
+    super('Reset token already used');
+    this.name = 'ResetTokenWasUsedError';
+  }
+}
