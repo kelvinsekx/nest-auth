@@ -25,7 +25,7 @@ export class CreateUserDto {
   password: string;
 }
 
-export class VerifyeUserDto {
+export class VerifyUserDto {
   @IsEmail()
   @IsOptional()
   email: string;
