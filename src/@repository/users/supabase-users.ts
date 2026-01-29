@@ -1,4 +1,4 @@
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { SupabaseService } from 'src/core/supabase/supabase.service';
 import { UsersRepository } from './users.interface';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 

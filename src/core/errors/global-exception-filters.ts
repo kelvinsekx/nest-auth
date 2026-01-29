@@ -14,7 +14,7 @@ import {
   TokensMismatchError,
 } from './../errors/auth-exceptions';
 
-import { Response } from 'express';
+import { response, Response } from 'express';
 
 @Catch(Error)
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -23,7 +23,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: String | Object = 'Something went wrong.';
+    let message: String | object = 'Something went wrong.';
 
     if (exception instanceof EmailAlreadyExistsError) {
       status = HttpStatus.CONFLICT;
@@ -42,7 +42,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = exception.message;
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
-      message = exception.getResponse();
+      const response = exception.getResponse() as {
+        message: string | string[];
+      };
+      message = response.message;
     }
 
     res.status(status).json({ statusCode: status, message });

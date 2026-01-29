@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { VerificationService } from '../verification-service/verification.service';
 import { PrismaService } from 'src/@repository/prisma.service';
-import { EmailDoNotExistOnVerify } from 'src/errors/auth-exceptions';
+import { EmailDoNotExistOnVerify } from 'src/core/errors/auth-exceptions';
 
 @Injectable()
 export class PendingUserService {

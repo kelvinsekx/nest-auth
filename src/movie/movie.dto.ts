@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Trim } from 'src/common/transformers/trim.transformer';
+import { Trim } from 'src/core/common/transformers/trim.transformer';
 
 import { ApiProperty } from '@nestjs/swagger';
 

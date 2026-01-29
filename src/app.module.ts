@@ -9,15 +9,12 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { SupabaseModule } from './supabase/supabase.module';
+import { SupabaseModule } from './core/supabase/supabase.module';
 
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { MovieModule } from './movie/movie.module';
-import {
-  USERS_REPOSITORY,
-  UsersRepository,
-} from './@repository/users/users.interface';
+
 import { UsersService } from './@repository/users/prisma-users';
 import { PrismaService } from './@repository/prisma.service';
 import { PendingUserService } from './auth/other-services/pending-user.service';
@@ -25,6 +22,7 @@ import { VerificationService } from './auth/verification-service/verification.se
 import { VerificatonPolicyService } from './auth/verification-service/verification-policy.service';
 import { VerifyPasswordResetRepository } from './auth/other-services/reset-password.service';
 import { PasswordService } from './auth/other-services/password.service';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -59,6 +57,7 @@ import { PasswordService } from './auth/other-services/password.service';
       },
     }),
     MovieModule,
+    UsersModule,
   ],
   controllers: [AppController, AuthController],
   providers: [

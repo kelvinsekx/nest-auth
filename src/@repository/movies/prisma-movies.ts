@@ -18,7 +18,11 @@ export class PrismaMoviesRepository implements MoviesRepository {
     });
   }
   async createNewMovie(data: Prisma.MovieCreateInput) {
-    return this.prisma.movie.create({ data });
+    try {
+      return this.prisma.movie.create({ data });
+    } catch (error) {
+      throw Error(error);
+    }
   }
   async updateMovie(id: string, data: Prisma.MovieCreateInput) {
     return this.prisma.movie.update({

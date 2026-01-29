@@ -6,7 +6,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { Trim } from 'src/common/transformers/trim.transformer';
+import { Trim } from 'src/core/common/transformers/trim.transformer';
 
 export class CreateUserDto {
   @IsEmail()

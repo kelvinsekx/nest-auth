@@ -7,10 +7,12 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto, UpdateMovieDTO } from './movie.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -20,6 +22,7 @@ export class MovieController {
   @ApiOkResponse({ description: 'All availbale movies' })
   @Get()
   getAllMovies() {
+    console.group('hey');
     return this.movieService.getAllMovies();
   }
 
@@ -28,12 +31,15 @@ export class MovieController {
     return this.movieService.getOneMovie(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   createNewMovie(@Body() movie: CreateMovieDto) {
-    return this.movieService.createNewMovie(movie);
+    console.log(movie);
+    // return this.movieService.createNewMovie(movie);
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   updateMovie(@Param('id') id: string, @Body() movie: UpdateMovieDTO) {
     return this.movieService.updateMovie(id, movie);
   }

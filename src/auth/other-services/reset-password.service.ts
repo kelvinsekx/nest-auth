@@ -4,7 +4,7 @@ import { PrismaService } from 'src/@repository/prisma.service';
 import {
   EmailDoNotExistOnReset,
   ResetTokenWasUsed,
-} from 'src/errors/auth-exceptions';
+} from 'src/core/errors/auth-exceptions';
 
 @Injectable()
 export class VerifyPasswordResetRepository {

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -9,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import {
   EmailAlreadyExistsError,
   TokensMismatchError,
-} from './../errors/auth-exceptions';
+} from './../core/errors/auth-exceptions';
 import { UsersService } from 'src/@repository/users/prisma-users';
 import { PendingUserService } from './other-services/pending-user.service';
 import { VerifyPasswordResetRepository } from './other-services/reset-password.service';
@@ -86,10 +87,10 @@ export class AuthService {
 
     if (!data) throw new UnauthorizedException('Invalid credentials');
 
-    const isMatch = await this.HashService.unhash(password, data.passwordHash);
+    const isMatch = await this.HashService.compare(password, data.passwordHash);
 
     if (!isMatch) {
-      throw new InternalServerErrorException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { sub: data.id, user: data.email };

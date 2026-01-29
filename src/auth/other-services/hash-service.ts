@@ -6,7 +6,7 @@ export class HashService {
     return await bcrypt.hash(plainText, saltRounds);
   }
 
-  async unhash(plainText, hash): Promise<boolean> {
+  async compare(plainText, hash): Promise<boolean> {
     return await bcrypt.compare(plainText, hash);
   }
 }

@@ -53,6 +53,7 @@ model User {
   rentals Rental[]
   reviews Review[]
   resetTokens VerifyPasswordReset[]
+  movies Movie[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -107,6 +108,9 @@ model Movie {
  
   rentals Rental[]
   reviews Review[]
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
