@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { MoviesRepository } from './movies.interface';
 
 import { PrismaService } from '../prisma.service';
 import { Prisma } from 'src/generated/prisma/client';
@@ -7,7 +6,7 @@ import { Prisma } from 'src/generated/prisma/client';
  *
  */
 @Injectable()
-export class PrismaMoviesRepository implements MoviesRepository {
+export class PrismaMoviesRepository {
   constructor(private readonly prisma: PrismaService) {}
   async getAllMovies() {
     return await this.prisma.movie.findMany();
@@ -18,12 +17,9 @@ export class PrismaMoviesRepository implements MoviesRepository {
     });
   }
   async createNewMovie(data: Prisma.MovieCreateInput) {
-    try {
-      return this.prisma.movie.create({ data });
-    } catch (error) {
-      throw Error(error);
-    }
+    return this.prisma.movie.create({ data });
   }
+
   async updateMovie(id: string, data: Prisma.MovieCreateInput) {
     return this.prisma.movie.update({
       where: { id },
@@ -33,6 +29,17 @@ export class PrismaMoviesRepository implements MoviesRepository {
   async removeMovie(id: string) {
     return this.prisma.movie.delete({
       where: { id },
+    });
+  }
+
+  async searchMovie(query: string) {
+    return this.prisma.movie.findMany({
+      where: {
+        title: {
+          contains: query,
+        },
+      },
+      take: 20,
     });
   }
 }

@@ -83,17 +83,17 @@ export class AuthService {
 
   async login(body: CreateUserDto) {
     const { email, password } = body;
-    const data = await this.userRepository.findByEmail({ email });
+    const user = await this.userRepository.findByEmail({ email });
 
-    if (!data) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const isMatch = await this.HashService.compare(password, data.passwordHash);
+    const isMatch = await this.HashService.compare(password, user.passwordHash);
 
     if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: data.id, user: data.email };
+    const payload = { sub: user.id, user: user.email, role: user.role };
 
     return {
       access_token: await this.jwtService.signAsync(payload),

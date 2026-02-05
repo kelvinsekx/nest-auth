@@ -9,7 +9,7 @@
 - `MODERATOR` - Review approval/rejection
 - `ADMIN` - Full system access
 
-### RentalStatus
+### Rental Status
 
 - `PENDING`
 - `ACTIVE`
@@ -25,11 +25,13 @@
 - secure login with JWT ✅
 - password reset ✅
 - password reset with email
-- role-based permissions
+- role-based permissions ✅
 
-### Roles.USER can
+### USER Role can
 
-- see list of movies
+`
+
+- see list of movies ✅
 - search movies
 - rent a movie for a defined period
 - see `RentalStatus.PENDING` rents
@@ -81,9 +83,7 @@ $ npm run test:cov
 
 ## Resources
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- Visit the [Lantern Pages Documentation](https://docs.nestjs.com) to learn more about the framework.
 
 ## Supabase Setup
 
@@ -106,16 +106,11 @@ npm run start:dev
 
 4. The app provides a global `SupabaseService` you can inject and call `getClient()` to access the Supabase client.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Author - [Kelvinsekx](https://twitter.com/kelvinsekx)
 - Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+WGAF

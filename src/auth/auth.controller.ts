@@ -16,7 +16,7 @@ import {
   VerifyUserDto,
 } from './auth.dto';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './auth.guard';
+import { JwtAuthGuard } from '../core/common/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {

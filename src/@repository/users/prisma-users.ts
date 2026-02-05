@@ -9,7 +9,7 @@ export class UsersService {
   async findByEmail(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
     const existingUser = await this.prisma.user.findUnique({
       where: userWhereUniqueInput,
-      select: { id: true, email: true, passwordHash: true },
+      select: { id: true, email: true, passwordHash: true, role: true },
     });
 
     return existingUser;

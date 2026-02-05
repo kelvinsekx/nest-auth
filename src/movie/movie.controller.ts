@@ -7,12 +7,16 @@ import {
   Param,
   Post,
   Put,
+  Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto, UpdateMovieDTO } from './movie.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from 'src/core/common/guards/auth.guard';
+import { GetUserId, Roles } from 'src/core/decorators';
+import { RolesGuard } from 'src/core/common/guards/roles.guard';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -22,20 +26,30 @@ export class MovieController {
   @ApiOkResponse({ description: 'All availbale movies' })
   @Get()
   getAllMovies() {
-    console.group('hey');
     return this.movieService.getAllMovies();
   }
 
+  @Get('search')
+  search(@Query() { q }: { q: string }) {
+    return this.movieService.search(q);
+  }
+
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   getOneMovie(@Param('id') id: string) {
     return this.movieService.getOneMovie(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createNewMovie(@Body() movie: CreateMovieDto) {
-    console.log(movie);
-    // return this.movieService.createNewMovie(movie);
+  createNewMovie(@Body() movie: CreateMovieDto, @GetUserId() userId: string) {
+    return this.movieService.createNewMovie({
+      ...movie,
+      user: {
+        connect: { id: userId },
+      },
+    });
   }
 
   @Put(':id')

@@ -1,16 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import {
-  MOVIES_REPOSITORY,
-  type MoviesRepository,
-} from 'src/@repository/movies/movies.interface';
+import { Injectable } from '@nestjs/common';
+import { PrismaMoviesRepository } from 'src/@repository/movies/prisma-movies';
 import { Prisma } from 'src/generated/prisma/client';
 
 @Injectable()
 export class MovieService {
-  constructor(
-    @Inject(MOVIES_REPOSITORY)
-    private movieRepository: MoviesRepository,
-  ) {}
+  constructor(private movieRepository: PrismaMoviesRepository) {}
 
   getAllMovies() {
     return this.movieRepository.getAllMovies();
@@ -21,22 +15,7 @@ export class MovieService {
   }
 
   async createNewMovie(movieInput: Prisma.MovieCreateInput) {
-    console.log('0');
-    try {
-      const { title, releaseYear } = movieInput;
-      const movie = await this.movieRepository.createNewMovie({
-        title,
-        releaseYear,
-      });
-      console.log('1');
-      return movie;
-    } catch (error) {
-      console.log('2');
-      throw new HttpException(
-        { message: error },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return await this.movieRepository.createNewMovie(movieInput);
   }
 
   updateMovie(id: string, movie) {
@@ -46,5 +25,9 @@ export class MovieService {
 
   removeMovie(id: string) {
     this.movieRepository.removeMovie(id);
+  }
+
+  search(q: string) {
+    return this.movieRepository.searchMovie(q);
   }
 }

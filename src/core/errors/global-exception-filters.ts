@@ -14,7 +14,7 @@ import {
   TokensMismatchError,
 } from './../errors/auth-exceptions';
 
-import { response, Response } from 'express';
+import { Response } from 'express';
 
 @Catch(Error)
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -47,7 +47,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
       message = response.message;
     }
-
+    console.log(exception);
     res.status(status).json({ statusCode: status, message });
   }
 }
