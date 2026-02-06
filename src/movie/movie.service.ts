@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaMoviesRepository } from 'src/@repository/movies/prisma-movies';
+import {
+  PrismaMoviesRepository,
+  type TSearchQ,
+} from 'src/@repository/movies/prisma-movies';
+import { SearchService } from 'src/core/common/services/search.service';
 import { Prisma } from 'src/generated/prisma/client';
 
 @Injectable()
 export class MovieService {
-  constructor(private movieRepository: PrismaMoviesRepository) {}
+  constructor(
+    private movieRepository: PrismaMoviesRepository,
+    private readonly searchService: SearchService,
+  ) {}
 
   getAllMovies() {
     return this.movieRepository.getAllMovies();
@@ -27,7 +34,7 @@ export class MovieService {
     this.movieRepository.removeMovie(id);
   }
 
-  search(q: string) {
-    return this.movieRepository.searchMovie(q);
+  search({ query, take, skip }: TSearchQ) {
+    return this.searchService.searchMovies({ query, take, skip });
   }
 }

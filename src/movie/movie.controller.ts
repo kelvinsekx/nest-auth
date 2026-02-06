@@ -30,13 +30,19 @@ export class MovieController {
   }
 
   @Get('search')
-  search(@Query() { q }: { q: string }) {
-    return this.movieService.search(q);
+  search(
+    @Query()
+    { q, page = 1, limit = 10 }: { q: string; page: number; limit: number },
+  ) {
+    return this.movieService.search({
+      query: q,
+      skip: (+page - 1) * limit,
+      take: +limit,
+    });
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @UseGuards(JwtAuthGuard)
   getOneMovie(@Param('id') id: string) {
     return this.movieService.getOneMovie(id);
   }

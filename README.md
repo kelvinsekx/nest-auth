@@ -32,7 +32,7 @@
 `
 
 - see list of movies ✅
-- search movies
+- search movies ✅
 - rent a movie for a defined period
 - see `RentalStatus.PENDING` rents
 - see `RentalStatus.ACTIVE` rents

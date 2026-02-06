@@ -3,8 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma } from 'src/generated/prisma/client';
 /**
- *
+ * TYPES
  */
+export type TSearchQ = {
+  query: string;
+  skip?: number;
+  take?: number;
+};
+
 @Injectable()
 export class PrismaMoviesRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -29,17 +35,6 @@ export class PrismaMoviesRepository {
   async removeMovie(id: string) {
     return this.prisma.movie.delete({
       where: { id },
-    });
-  }
-
-  async searchMovie(query: string) {
-    return this.prisma.movie.findMany({
-      where: {
-        title: {
-          contains: query,
-        },
-      },
-      take: 20,
     });
   }
 }
