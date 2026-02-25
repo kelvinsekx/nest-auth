@@ -13,28 +13,28 @@ export class MovieService {
     private readonly searchService: SearchService,
   ) {}
 
-  getAllMovies() {
-    return this.movieRepository.getAllMovies();
+  async getAllMovies() {
+    return await this.movieRepository.getAllMovies();
   }
 
-  getOneMovie(id: string) {
-    return this.movieRepository.getOneMovie(id);
+  async findOne(movieWhereUnique: Prisma.MovieWhereUniqueInput) {
+    return await this.movieRepository.getOneMovie(movieWhereUnique);
   }
 
   async createNewMovie(movieInput: Prisma.MovieCreateInput) {
     return await this.movieRepository.createNewMovie(movieInput);
   }
 
-  updateMovie(id: string, movie) {
-    const updatedMovie = this.movieRepository.updateMovie(id, movie);
+  async updateMovie(id: string, movie) {
+    const updatedMovie = await this.movieRepository.updateMovie(id, movie);
     return updatedMovie;
   }
 
-  removeMovie(id: string) {
-    this.movieRepository.removeMovie(id);
+  async removeMovie(id: string) {
+    await this.movieRepository.removeMovie(id);
   }
 
-  search({ query, take, skip }: TSearchQ) {
-    return this.searchService.searchMovies({ query, take, skip });
+  async search({ query, take, skip }: TSearchQ) {
+    return await this.searchService.searchMovies({ query, take, skip });
   }
 }

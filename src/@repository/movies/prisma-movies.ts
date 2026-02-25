@@ -17,9 +17,9 @@ export class PrismaMoviesRepository {
   async getAllMovies() {
     return await this.prisma.movie.findMany();
   }
-  async getOneMovie(id: string) {
+  async getOneMovie(movieWhereUnique: Prisma.MovieWhereUniqueInput) {
     return await this.prisma.movie.findUnique({
-      where: { id },
+      where: movieWhereUnique,
     });
   }
   async createNewMovie(data: Prisma.MovieCreateInput) {

@@ -4,6 +4,7 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 
 import {
@@ -23,7 +24,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: String | object = 'Something went wrong.';
+    let message: String | object =
+      'Something went wrong. It is our fault not yours.';
 
     if (exception instanceof EmailAlreadyExistsError) {
       status = HttpStatus.CONFLICT;
@@ -40,6 +42,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof TokensMismatchError) {
       status = HttpStatus.CONFLICT;
       message = exception.message;
+    } else if (exception instanceof NotFoundException) {
+      status = HttpStatus.CONFLICT;
+      message = exception.message;
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const response = exception.getResponse() as {
@@ -47,7 +52,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
       message = response.message;
     }
-    console.log(exception);
+    // console.log(exception);
     res.status(status).json({ statusCode: status, message });
   }
 }

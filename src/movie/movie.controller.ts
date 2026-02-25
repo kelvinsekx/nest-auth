@@ -8,15 +8,13 @@ import {
   Post,
   Put,
   Query,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto, UpdateMovieDTO } from './movie.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/core/common/guards/auth.guard';
-import { GetUserId, Roles } from 'src/core/decorators';
-import { RolesGuard } from 'src/core/common/guards/roles.guard';
+import { GetUserId } from 'src/core/decorators';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -43,8 +41,8 @@ export class MovieController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  getOneMovie(@Param('id') id: string) {
-    return this.movieService.getOneMovie(id);
+  findOne(@Param('id') id: string) {
+    return this.movieService.findOne({ id });
   }
 
   @UseGuards(JwtAuthGuard)

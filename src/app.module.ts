@@ -10,6 +10,8 @@ import { UsersModule } from './users/users.module';
 import { MovieModule } from './movie/movie.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { RentModule } from './rent/rent.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -34,10 +36,12 @@ import { AdminModule } from './admin/admin.module';
         },
       },
     }),
+    ScheduleModule.forRoot({}),
     MovieModule,
     UsersModule,
     AuthModule,
     AdminModule,
+    RentModule,
   ],
   controllers: [AppController],
   providers: [

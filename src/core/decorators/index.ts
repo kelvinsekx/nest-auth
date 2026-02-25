@@ -1,11 +1,11 @@
 import {
   createParamDecorator,
-  ExecutionContext,
+  type ExecutionContext,
   SetMetadata,
 } from '@nestjs/common';
 
 export const GetUserId = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
+  (_: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return request.user?.sub;
   },
