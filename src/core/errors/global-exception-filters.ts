@@ -52,7 +52,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
       message = response.message;
     }
-    // console.log(exception);
+    console.log(exception);
     res.status(status).json({ statusCode: status, message });
   }
 }

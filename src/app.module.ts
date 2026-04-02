@@ -1,8 +1,10 @@
+import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { SupabaseModule } from './core/supabase/supabase.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -33,6 +35,16 @@ import { ScheduleModule } from '@nestjs/schedule';
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,
+        },
+      },
+      defaults: {
+        from: '"Kingsley Okure" <kingsleyokgeorge@gmail.com>',
+      },
+      template: {
+        dir: path.join(process.cwd(), 'src/core/common/email-templates'),
+        adapter: new HandlebarsAdapter(), // or new PugAdapter()
+        options: {
+          strict: true,
         },
       },
     }),

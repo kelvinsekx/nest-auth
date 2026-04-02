@@ -5,18 +5,30 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   constructor(private readonly mailService: MailerService) {}
 
-  sendMail() {
+  async sendMail() {
     const message = `Forgot your password? If you didn't forget your password, please ignore this email!`;
 
-    this.mailService.sendMail({
-      from: 'Kingsley Okure <kingsleyokgeorge@gmail.com>',
+    await this.mailService.sendMail({
       to: 'joanna@gmail.com',
       subject: `How to Send Emails with Nodemailer`,
-      text: message,
+      html: `<p>${message}</p>`,
     });
   }
 
-   getHello(): string {
+  async sendMailWithTemplate() {
+    await this.mailService.sendMail({
+      from: 'Kingsley Okure <kingsleyokgeorge@gmail.com>',
+      to: 'joanna@gmail.com',
+      subject: `How to Send Emails with Nodemailer`,
+      template: 'example',
+      context: {
+        code: 'cf1a3f828287',
+        username: 'john doe',
+      },
+    });
+  }
+
+  getHello(): string {
     return 'Hello World!';
   }
 }

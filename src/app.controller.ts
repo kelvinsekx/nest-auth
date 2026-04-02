@@ -11,8 +11,18 @@ export class AppController {
   }
 
   @Get('/send-email')
-  sendMailer() {
-    const mail = this.appService.sendMail();
+  async sendMailer() {
+    const mail = await this.appService.sendMail();
+
+    return {
+      message: 'success',
+      mail,
+    };
+  }
+
+  @Get('/send-email-with-template')
+  async sendMailWithTemplate() {
+    const mail = await this.appService.sendMailWithTemplate();
 
     return {
       message: 'success',
